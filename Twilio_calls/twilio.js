@@ -25,7 +25,7 @@ let inputdata = {
   ]
 }
 
-const url = 'https://154.53.47.247:8443/api/v2/chat/completions?companyId=652470d8be66286e724b3c6f&token=652470d8be66286e724b3c6e'
+const url = 'http://154.53.47.247:30081/core/api/v2/chat/completions?companyId=6560f9cc9dd5104df49636c5&token=6560f9cc9dd5104df49636c4'
 const certPath = fs.readFileSync('./app_usremodel_ai_combined.crt')
 const agent = new https.Agent({
     ca: certPath
@@ -95,7 +95,7 @@ exports.extractName = async(req,res,next) => {
       twiml.pause();
       const gather = twiml.gather({
         input : "dtmf speech",
-        speechModel : "phone_call",
+        speechModel : "numbers_and_commands",
         speechTimeout : "auto",
         language : "en-US",
         numDigits: 1,
@@ -123,7 +123,7 @@ exports.repeatOptions = async(req,res,next) => {
   try{
     const gather = twiml.gather({
       input : "dtmf speech",
-      speechModel : "phone_call",
+      speechModel : "numbers_and_commands",
       speechTimeout : "auto",
       language : "en-US",
       numDigits: 1,
@@ -150,7 +150,7 @@ exports.initialgather = async(req,res,next) => {
       else if (req.body.SpeechResult.match(/different account/gi)){
         const gather = twiml.gather({
           input : "speech",
-          speechModel : "phone_call",
+          speechModel : "numbers_and_commands",
           speechTimeout : "auto",
           language : "en-US",
           action : "/secondgather"
@@ -173,7 +173,7 @@ exports.initialgather = async(req,res,next) => {
       else if (req.body.Digits === "2"){
         const gather = twiml.gather({
           input : "speech",
-          speechModel : "phone_call",
+          speechModel : "numbers_and_commands",
           speechTimeout : "auto",
           language : "en-US",
           action : "/secondgather"
@@ -205,7 +205,7 @@ exports.repeat = async (req,res,next) => {
   try{
     const gather = twiml.gather({
       input : "speech",
-      speechModel : "phone_call",
+      speechModel : "numbers_and_commands",
       speechTimeout : "auto",
       language : "en-US",
       action : "/secondgather"
@@ -292,7 +292,7 @@ exports.twiliocallhandler = async (req, res) => {
       },"To help you direct to the right place, please choose from the following options")
       const gather = twiml.gather({
         input : "dtmf speech",
-        speechModel : "phone_call",
+        speechModel : "numbers_and_commands",
         speechTimeout : "auto",
         language : "en-US",
         numDigits: 1,
@@ -328,8 +328,8 @@ exports.handlegather = async (req,res)=>{
               flag = false;
               serviceType = Object.keys(properties)[i];
               inputdata.messages[0]["content"] = properties[Object.keys(properties)[i]];
-              // twiml.redirect("/calls");
-              twiml.say({ voice: 'Polly.Ruth-Neural' }, properties[Object.keys(properties)[i]]);
+              twiml.redirect("/calls");
+              // twiml.say({ voice: 'Polly.Ruth-Neural' }, properties[Object.keys(properties)[i]]);
               break;
             }
           }
@@ -341,9 +341,10 @@ exports.handlegather = async (req,res)=>{
           if((req.body.Digits-1)<noofusecases){
             serviceType = Object.keys(properties)[req.body.Digits-1];
             inputdata.messages[0]["content"] = properties[Object.keys(properties)[req.body.Digits-1]];
-            twiml.say({
-                        voice: 'Polly.Ruth-Neural'
-                    },String(properties[Object.keys(properties)[req.body.Digits-1]]));
+            twiml.redirect("/calls");
+            // twiml.say({
+            //             voice: 'Polly.Ruth-Neural'
+            //         },String(properties[Object.keys(properties)[req.body.Digits-1]]));
         }
         else{
             twiml.say({
