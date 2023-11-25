@@ -78,7 +78,7 @@ exports.extractName = async(req,res,next) => {
       twiml.redirect("/incomingcall")
      }
      console.log(personName);
-     const contactInfo = await axios.get(`http://ec2-54-197-76-31.compute-1.amazonaws.com/getContact/${req.body.From}`);
+     const contactInfo = await axios.get(`http://54.197.76.31:3000/getContact/${req.body.From}`);
      twiml.say({
       voice: 'Polly.Ruth-Neural'
      },`Hello ${personName}`);
@@ -250,7 +250,7 @@ exports.thirdgather = async(req,res) => {
   const twiml = new VoiceResponse();
   if (req.body.Digits){
     anotherNumber = "+1"+req.body.Digits;
-    const contactInfo = await axios.get(`http://ec2-54-197-76-31.compute-1.amazonaws.com/getContact/${anotherNumber}`);
+    const contactInfo = await axios.get(`http://54.197.76.31:3000/getContact/${anotherNumber}`);
     if(contactInfo.data.contact.length!=0){
       twiml.redirect("/twiliocalls");
     }
@@ -282,7 +282,7 @@ exports.twiliocallhandler = async (req, res) => {
     // console.log("Incoming call from:", req.body.From);
   
     try {
-      const jsonobj = await axios.get("http://ec2-54-197-76-31.compute-1.amazonaws.com/getAllUseCases");
+      const jsonobj = await axios.get("http://54.197.76.31:3000/getAllUseCases");
       text = jsonobj.data.text; // Access text from jsonobj.data
       properties = jsonobj.data.properties; // Access properties from jsonobj.data
       noofusecases = jsonobj.data.noofusecases;
