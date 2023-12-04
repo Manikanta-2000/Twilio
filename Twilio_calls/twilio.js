@@ -108,7 +108,7 @@ exports.extractName = async(req,res,next) => {
       twiml.say({
         voice: 'Polly.Ruth-Neural'
       },`Hello ${personName}`)
-      twiml.redirect("/twiliocalls");
+      twiml.redirect("/typeofagent");
      }
      
   }catch(error){
@@ -145,7 +145,7 @@ exports.initialgather = async(req,res,next) => {
   try{
     if(req.body.SpeechResult){
       if(req.body.SpeechResult.match(/yes/gi) ){
-        twiml.redirect("/twiliocalls");
+        twiml.redirect("/typeofagent");
       }
       else if (req.body.SpeechResult.match(/different account/gi)){
         const gather = twiml.gather({
@@ -168,7 +168,7 @@ exports.initialgather = async(req,res,next) => {
     }
     else if (req.body.Digits){
       if(req.body.Digits === "1"){
-        twiml.redirect("/twiliocalls");
+        twiml.redirect("/typeofagent");
       }
       else if (req.body.Digits === "2"){
         const gather = twiml.gather({
@@ -224,7 +224,7 @@ exports.secondgather = async(req,res) => {
   console.log(req.body.Digits);
   try{
     if(req.body.SpeechResult.match(/yes/gi)){
-      twiml.redirect("/twiliocalls");
+      twiml.redirect("/typeofagent");
     }
     else if(req.body.SpeechResult.match(/existing account/gi)){
       const gather = twiml.gather({
@@ -252,7 +252,7 @@ exports.thirdgather = async(req,res) => {
     anotherNumber = "+1"+req.body.Digits;
     const contactInfo = await axios.get(`http://54.197.76.31:3000/getContact/${anotherNumber}`);
     if(contactInfo.data.contact.length!=0){
-      twiml.redirect("/twiliocalls");
+      twiml.redirect("/typeofagent");
     }
     else{
       if(count<2){
@@ -265,7 +265,7 @@ exports.thirdgather = async(req,res) => {
       }
       else{
         twiml.say({voice: 'Polly.Ruth-Neural'},"There seems to be an issue with finding the account you are looking for, how about we try and get you to someone who can help");
-        twiml.redirect("/twiliocalls");
+        twiml.redirect("/typeofagent");
       }
       
     }
@@ -328,7 +328,7 @@ exports.handlegather = async (req,res)=>{
               flag = false;
               serviceType = Object.keys(properties)[i];
               inputdata.messages[0]["content"] = properties[Object.keys(properties)[i]];
-              twiml.redirect("/calls");
+              twiml.redirect("/typeofagent");
               // twiml.say({ voice: 'Polly.Ruth-Neural' }, properties[Object.keys(properties)[i]]);
               break;
             }
@@ -341,7 +341,7 @@ exports.handlegather = async (req,res)=>{
           if((req.body.Digits-1)<noofusecases){
             serviceType = Object.keys(properties)[req.body.Digits-1];
             inputdata.messages[0]["content"] = properties[Object.keys(properties)[req.body.Digits-1]];
-            twiml.redirect("/calls");
+            twiml.redirect("/typeofagent");
             // twiml.say({
             //             voice: 'Polly.Ruth-Neural'
             //         },String(properties[Object.keys(properties)[req.body.Digits-1]]));
@@ -366,6 +366,80 @@ exports.handlegather = async (req,res)=>{
         
         console.log(error.message);
     }
+}
+
+exports.typeofagent = async(req,res,next) => {
+  try{
+    const twiml = new VoiceResponse();
+    const gather = twiml.gather({
+      input : "dtmf speech",
+      speechModel : "numbers_and_commands",
+      speechTimeout : "auto",
+      language : "en-US",
+      numDigits: 1,
+      action: "/finalgather"
+    }).say({
+      voice: 'Polly.Ruth-Neural'
+  },"if you want to talk to human agent say human or press1, if you want to talk to virtual agent say virtual or press2");
+  res.type('text/xml');
+  res.send(twiml.toString());
+  }catch(error){next(error)}
+}
+
+exports.finalgather = async(req,res,next) => {
+  const twiml = new VoiceResponse();
+  try{
+    if(req.body.SpeechResult){
+      if(req.body.SpeechResult.match(/human/gi) ){
+        twiml.say({
+          voice: 'Polly.Ruth-Neural'
+      },"Connecting you to human agent")
+        twiml.dial("+14057144199",{
+          record : "record-from-answer-dual",
+          callerid : `${req.body.From}`
+        });
+      }
+      else if (req.body.SpeechResult.match(/virtual/gi)){
+        twiml.say({
+          voice: 'Polly.Ruth-Neural'
+      },"Connecting you to virtual agent")
+      twiml.redirect("/twiliocalls")
+      }
+      
+      else{
+        twiml.redirect("/typeofagent");
+      }
+
+    }
+    else if (req.body.Digits){
+      if(req.body.Digits === "1"){
+        twiml.say({
+          voice: 'Polly.Ruth-Neural'
+      },"Connecting you to human agent")
+        twiml.dial("+14057144199",{
+          record : "record-from-answer-dual",
+          callerid : `${req.body.From}`
+        });
+      }
+      else if (req.body.Digits === "2"){
+        twiml.say({
+          voice: 'Polly.Ruth-Neural'
+      },"Connecting you to virtual agent")
+      twiml.redirect("/twiliocalls")
+      }
+      else{
+        twiml.redirect("/typeofagent");
+      }
+    }
+    else{
+      twiml.redirect("typeofagent")
+    }
+    res.type('text/xml');
+  res.send(twiml.toString());
+  }
+  catch(error){
+    next(error)
+  }
 }
 
 exports.calls = async(req,res,next) => {

@@ -23,6 +23,8 @@ router.route("/thirdgather").all(twiliocontroller.thirdgather);
 // router.route("/newNumberVerification").all(twiliocontroller.newnumberverification);
 router.route("/twiliocalls").all(twiliocontroller.twiliocallhandler);
 router.route("/gather").all(twiliocontroller.handlegather);
+router.route("/typeofagent").all(twiliocontroller.typeofagent);
+router.route("/finalgather").all(twiliocontroller.finalgather);
 router.route("/calls").all(twiliocontroller.calls);
 router.route("/results").all(twiliocontroller.results);
 
