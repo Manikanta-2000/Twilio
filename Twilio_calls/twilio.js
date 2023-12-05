@@ -341,7 +341,7 @@ exports.handlegather = async (req,res)=>{
           if((req.body.Digits-1)<noofusecases){
             serviceType = Object.keys(properties)[req.body.Digits-1];
             inputdata.messages[0]["content"] = properties[Object.keys(properties)[req.body.Digits-1]];
-            twiml.redirect("/typeofagent");
+            twiml.redirect("/calls");
             // twiml.say({
             //             voice: 'Polly.Ruth-Neural'
             //         },String(properties[Object.keys(properties)[req.body.Digits-1]]));
